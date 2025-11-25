@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payments</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Gym Management System</div>
+    <nav>
+        <a href="dashboard.html" class="nav-item-admin"><i class="ph ph-house"></i> Dashboard</a>
+        <a href="members.html" class="nav-item-all"><i class="ph ph-users"></i> Members</a>
+        <a href="coaches.html" class="nav-item-all"><i class="ph ph-user"></i> Coaches</a>
+        <a href="payments.html" class="nav-item-admin"><i class="ph ph-currency-dollar"></i> Payments</a>
+        <a href="schedules.html" class="nav-item-all"><i class="ph ph-calendar"></i> Schedules</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <button id="toggleSidebar" class="menu-btn">☰</button>
+      <h1>Payments</h1>
+      <div class="user-menu">
+        <span id="userName">User</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <section class="content">
+      <div class="card">
+        <h2>Card 1</h2>
+        <p>This is some information.</p>
+      </div>
+
+      <div class="card">
+        <h2>Card 2</h2>
+        <p>More information here.</p>
+      </div>
+
+      <div class="card">
+        <h2>Card 3</h2>
+        <p>Even more information.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="/js/auth-check.js"></script>
+  <script src="/js/script.js"></script>
+</body>
+</html>
+
+

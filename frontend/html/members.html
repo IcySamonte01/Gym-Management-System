@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Members</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/members.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Gym Management System</div>
+    <nav>
+        <a href="dashboard.html" class="nav-item-admin"><i class="ph ph-house"></i> Dashboard</a>
+        <a href="members.html" class="nav-item-all"><i class="ph ph-users"></i> Members</a>
+        <a href="coaches.html" class="nav-item-all"><i class="ph ph-user"></i> Coaches</a>
+        <a href="payments.html" class="nav-item-admin"><i class="ph ph-currency-dollar"></i> Payments</a>
+        <a href="schedules.html" class="nav-item-all"><i class="ph ph-calendar"></i> Schedules</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <button id="toggleSidebar" class="menu-btn">☰</button>
+      <h1>Members</h1>
+      <div class="user-menu">
+        <span id="userName">User</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <section class="content">
+
+      <div class="page-header">
+        <h2>Members Management</h2>
+        <button id="addMemberBtn" class="btn-primary" style="display: none;">
+          <i class="ph ph-plus"></i> Add Member
+        </button>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search members by name, email, or phone...">
+        <button class="search-btn" onclick="searchMembers()">
+          <i class="ph ph-magnifying-glass"></i> Search
+        </button>
+      </div>
+
+      <div class="members-stats">
+        <div class="stat-card">
+          <h3>Total Members</h3>
+          <p id="totalMembers" class="stat-number">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Members</h3>
+          <p id="activeMembers" class="stat-number">0</p>
+        </div>
+      </div>
+
+      <div class="members-table">
+        <table id="membersTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Membership Type</th>
+              <th>Status</th>
+              <th>Join Date</th>
+              <th class="admin-only" style="display: none;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="membersTableBody">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 40px;">
+                <i class="ph ph-spinner ph-spin" style="font-size: 32px;"></i>
+                <p>Loading members...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <!-- Add/Edit Member Modal -->
+    <div id="memberModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add New Member</h2>
+          <span class="close">&times;</span>
+        </div>
+        <form id="memberForm">
+          <input type="hidden" id="memberId">
+          
+          <div class="form-group">
+            <label for="memberName">Full Name *</label>
+            <input type="text" id="memberName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="memberEmail">Email *</label>
+            <input type="email" id="memberEmail" required>
+          </div>
+
+          <div class="form-group">
+            <label for="memberPassword">Password (for login account) *</label>
+            <input type="password" id="memberPassword" required minlength="6" placeholder="Minimum 6 characters">
+            <small style="color: #666;">This will create a login account for the member</small>
+          </div>
+
+          <div class="form-group">
+            <label for="memberPhone">Phone Number *</label>
+            <input type="tel" id="memberPhone" required>
+          </div>
+
+          <div class="form-group">
+            <label for="membershipType">Membership Type *</label>
+            <select id="membershipType" required>
+              <option value="">Select Membership</option>
+              <option value="Basic">Basic</option>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+              <option value="Gold">Gold</option>
+              <option value="Silver">Silver</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="memberAddress">Address</label>
+            <textarea id="memberAddress" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyContact">Emergency Contact</label>
+            <input type="text" id="emergencyContact" placeholder="Name and Phone">
+          </div>
+
+          <div class="form-group">
+            <label for="memberStatus">Status</label>
+            <select id="memberStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeMemberModal()">Cancel</button>
+            <button type="submit" class="btn-primary">
+              <span id="submitBtnText">Add Member</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/auth-check.js"></script>
+  <script src="/js/script.js"></script>
+  <script src="/js/members.js"></script>
+</body>
+</html>
+
