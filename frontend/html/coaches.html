@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coaches</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Gym Management System</div>
+    <nav>
+        <a href="dashboard.html" class="nav-item-admin"><i class="ph ph-house"></i> Dashboard</a>
+        <a href="members.html" class="nav-item-all"><i class="ph ph-users"></i> Members</a>
+        <a href="coaches.html" class="nav-item-all"><i class="ph ph-user"></i> Coaches</a>
+        <a href="payments.html" class="nav-item-admin"><i class="ph ph-currency-dollar"></i> Payments</a>
+        <a href="schedules.html" class="nav-item-all"><i class="ph ph-calendar"></i> Schedules</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <button id="toggleSidebar" class="menu-btn">☰</button>
+      <h1>Coaches</h1>
+      <div class="user-menu">
+        <span id="userName">User</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <section class="content">
+      <!-- Coach 1 -->
+        <div class="coach-card">
+          <img src="https://via.placeholder.com/90" alt="Coach" class="coach-photo">
+          <h3 class="coach-name">Icy Samonte</h3>
+          <p class="coach-role">Strength</p>
+          <p class="coach-contact">📞
+ 0912 345 6789</p>
+          <button class="view-btn">View Profile</button>
+        </div>
+
+        <!-- Coach 2 -->
+        <div class="coach-card">
+          <img src="https://via.placeholder.com/90" alt="Coach" class="coach-photo">
+          <h3 class="coach-name">Eliseo Dioneda</h3>
+          <p class="coach-role">Yoga Instructor</p>
+          <p class="coach-contact">📞
+ 0998 123 4567</p>
+          <button class="view-btn">View Profile</button>
+        </div>
+
+        <!-- Coach 3 -->
+        <div class="coach-card">
+          <img src="https://via.placeholder.com/90" alt="Coach" class="coach-photo">
+          <h3 class="coach-name">Jhon William Dajac</h3>
+          <p class="coach-role">Cardio Training</p>
+          <p class="coach-contact">📞
+ 0917 987 6543</p>
+          <button class="view-btn">View Profile</button>
+        </div>
+
+        <!-- Coach 4 -->
+        <div class="coach-card">
+          <img src="https://via.placeholder.com/90" alt="Coach" class="coach-photo">
+          <h3 class="coach-name">Mckean Aguilar</h3>
+          <p class="coach-role">Conditioning</p>
+          <p class="coach-contact">📞
+ 0912 345 6785</p>
+          <button class="view-btn">View Profile</button>
+        </div>
+
+    </section>
+
+  </div>
+
+  <script src="/js/auth-check.js"></script>
+  <script src="/js/script.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Gym Management System</div>
+    <nav>
+        <a href="dashboard.html" class="nav-item-admin"><i class="ph ph-house"></i> Dashboard</a>
+        <a href="members.html" class="nav-item-all"><i class="ph ph-users"></i> Members</a>
+        <a href="coaches.html" class="nav-item-all"><i class="ph ph-user"></i> Coaches</a>
+        <a href="payments.html" class="nav-item-admin"><i class="ph ph-currency-dollar"></i> Payments</a>
+        <a href="schedules.html" class="nav-item-all"><i class="ph ph-calendar"></i> Schedules</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <button id="toggleSidebar" class="menu-btn">☰</button>
+      <h1>Dashboard</h1>
+      <div class="user-menu">
+        <span id="userName">User</span>
+        <button onclick="logout()" class="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <section class="content">
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e3f2fd;">
+            <i class="ph ph-users" style="color: #2196F3; font-size: 32px;"></i>
+          </div>
+          <div class="stat-info">
+            <h3>Total Members</h3>
+            <p id="totalMembers" class="stat-number">0</p>
+            <span class="stat-label">Active: <span id="activeMembers">0</span></span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #f3e5f5;">
+            <i class="ph ph-user" style="color: #9c27b0; font-size: 32px;"></i>
+          </div>
+          <div class="stat-info">
+            <h3>Total Coaches</h3>
+            <p id="totalCoaches" class="stat-number">0</p>
+            <span class="stat-label">Available coaches</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #e8f5e9;">
+            <i class="ph ph-currency-dollar" style="color: #4CAF50; font-size: 32px;"></i>
+          </div>
+          <div class="stat-info">
+            <h3>Total Revenue</h3>
+            <p id="totalRevenue" class="stat-number">$0.00</p>
+            <span class="stat-label">All time earnings</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-buttons">
+          <a href="members.html" class="action-btn">
+            <i class="ph ph-users"></i>
+            <span>Manage Members</span>
+          </a>
+          <a href="coaches.html" class="action-btn">
+            <i class="ph ph-user"></i>
+            <span>Manage Coaches</span>
+          </a>
+          <a href="schedules.html" class="action-btn">
+            <i class="ph ph-calendar"></i>
+            <span>View Schedules</span>
+          </a>
+          <a href="payments.html" class="action-btn">
+            <i class="ph ph-currency-dollar"></i>
+            <span>Track Payments</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="/js/auth-check.js"></script>
+  <script src="/js/script.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>
+
