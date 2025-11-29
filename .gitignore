@@ -1,4 +1,82 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
+*.env
+
+# Logs
 *.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Build artifacts (C# .NET)
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Archive folder (legacy Node.js - not needed)
+archive/
+
+# Tools (optional - large executables)
+tools/acli.exe
+
+# Temporary files
+tmp_*
+*.tmp
+*.temp
+
+# NuGet packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Compiled files
+*.dll
+*.exe
+*.pdb
+
+# Package files
+*.nupkg
+
+# Backup files
+*.bak
+*~

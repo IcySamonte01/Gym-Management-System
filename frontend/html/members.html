@@ -31,8 +31,28 @@
       <button id="toggleSidebar" class="menu-btn">☰</button>
       <h1>Members</h1>
       <div class="user-menu">
-        <span id="userName">User</span>
-        <button onclick="logout()" class="btn-logout">Logout</button>
+        <div class="user-profile-dropdown">
+          <button class="user-profile-btn" id="userProfileBtn" onclick="toggleUserDropdown()">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <i class="ph ph-caret-down"></i>
+          </button>
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-avatar" id="userDropdownAvatar">U</div>
+              <div class="user-dropdown-info">
+                <div class="user-dropdown-name" id="userDropdownName">User</div>
+                <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                <div class="user-dropdown-role" id="userDropdownRole"></div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" onclick="logout()">
+              <i class="ph ph-sign-out"></i>
+              <span>Log out</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -252,6 +272,18 @@
             </select>
           </div>
 
+          <!-- Change Coach Section (for editing members with coaches) -->
+          <div class="form-group" id="changeCoachField" style="display: none;">
+            <label>Current Coach</label>
+            <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 6px; margin-bottom: 10px;">
+              <i class="ph ph-user" style="font-size: 20px; color: #4CAF50;"></i>
+              <span id="currentCoachName" style="font-weight: 500;">N/A</span>
+            </div>
+            <button type="button" onclick="openChangeCoachModal()" class="btn-secondary" style="width: 100%;">
+              <i class="ph ph-arrows-clockwise"></i> Change Coach
+            </button>
+          </div>
+
           <div class="modal-actions">
             <button type="button" class="btn-secondary" onclick="closeMemberModal()">Cancel</button>
             <button type="submit" class="btn-primary">
@@ -325,18 +357,6 @@
           </div>
 
           <div class="form-group">
-            <label for="paymentMethod"><i class="ph ph-credit-card"></i> Payment Method *</label>
-            <select id="paymentMethod" required>
-              <option value="">Select Payment Method</option>
-              <option value="Cash">💵 Cash</option>
-              <option value="Credit Card">💳 Credit Card</option>
-              <option value="Debit Card">💳 Debit Card</option>
-              <option value="Bank Transfer">🏦 Bank Transfer</option>
-              <option value="Online Payment">📱 Online Payment</option>
-            </select>
-          </div>
-
-          <div class="form-group">
             <label for="paymentNotes">
               <i class="ph ph-note"></i> Notes 
               <span class="optional-tooltip" title="This field is optional">
@@ -377,89 +397,92 @@
           <span class="close" onclick="closeRenewModal()">&times;</span>
         </div>
         <form id="renewForm">
+          <!-- Step 1: Select Member -->
           <div class="form-group">
-            <label for="renewMemberSelect">Select Member to Renew *</label>
-            <select id="renewMemberSelect" required>
-              <option value="">Select Member</option>
+            <label for="renewMemberSelect"><i class="ph ph-user"></i> Select Member *</label>
+            <select id="renewMemberSelect" required onchange="handleRenewMemberSelection(this.value)">
+              <option value="">-- Select a member to renew --</option>
             </select>
-            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
-              Choose a member to renew or extend their membership
-            </small>
+          </div>
+          <input type="hidden" id="renewMemberId">
+
+          <!-- Step 2: Display Current Status Card -->
+          <div id="renewMemberInfo" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">Current Status</h4>
+            <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="opacity: 0.9;">Member:</span>
+                <strong id="renewInfoName" style="font-size: 16px;"></strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="opacity: 0.9;">Current Plan:</span>
+                <strong id="renewInfoType"></strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <span style="opacity: 0.9;">Status:</span>
+                <strong id="renewInfoStatus" style="padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,0.2);"></strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="opacity: 0.9;">Expires:</span>
+                <strong id="renewInfoExpiration"></strong>
+              </div>
+            </div>
           </div>
 
-          <div id="renewMemberInfo" style="display: none; background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h4 style="margin-top: 0; margin-bottom: 12px; color: #667eea; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Current Member Information</h4>
-            <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;"><strong>Name:</strong> <span id="renewInfoName"></span></p>
-            <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;"><strong>Current Membership:</strong> <span id="renewInfoType"></span></p>
-            <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;"><strong>Status:</strong> <span id="renewInfoStatus"></span></p>
-            <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;"><strong>Expiration Date:</strong> <span id="renewInfoExpiration"></span></p>
-          </div>
-
-          <div class="form-group">
-            <label for="renewMembershipType">New Membership Type *</label>
+          <!-- Step 3: Select New Membership Type -->
+          <div class="form-group" id="renewMembershipTypeGroup" style="display: none;">
+            <label for="renewMembershipType"><i class="ph ph-shopping-bag"></i> New Membership Type *</label>
             <select id="renewMembershipType" required>
-              <option value="">Select Membership Type</option>
-              <option value="Monthly">Monthly (30 days)</option>
-              <option value="Annual">Annual (365 days)</option>
-              <option value="Monthly with Coach">Monthly with Coach (30 days)</option>
-              <option value="Annual with Coach">Annual with Coach (365 days)</option>
+              <option value="">-- Select New Plan --</option>
+              <option value="Monthly">💳 Monthly - ₱1,000 (30 days)</option>
+              <option value="Annual">💎 Annual - ₱10,000 (365 days)</option>
+              <option value="Monthly with Coach">🏋️ Monthly with Coach - ₱2,000 (30 days)</option>
+              <option value="Annual with Coach">⭐ Annual with Coach - ₱20,000 (365 days)</option>
             </select>
-            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
-              <span id="renewMembershipTypeHint">Select the membership type to add/extend</span>
-            </small>
           </div>
 
-          <div class="form-group">
+          <!-- Student Discount Option -->
+          <div class="form-group" id="renewStudentGroup" style="display: none;">
             <label class="checkbox-label">
               <input type="checkbox" id="renewIsStudent">
-              <span style="font-weight: 600;">Student (10% discount)</span>
+              <span style="font-weight: 600;"><i class="ph ph-student"></i> Apply Student Discount (10% off)</span>
             </label>
           </div>
 
-          <div id="renewPaymentInfo" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 24px; border-radius: 8px; margin: 20px 0;">
-            <h4 style="margin-top: 0; margin-bottom: 16px; font-size: 16px;">Payment Summary</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 15px; line-height: 1.5;">
+          <!-- Payment Summary -->
+          <div id="renewPaymentInfo" style="display: none; background: #f8f9fa; border: 2px solid #667eea; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="margin: 0 0 12px 0; color: #667eea; font-size: 16px;"><i class="ph ph-coins"></i> Payment Summary</h4>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #333;">
               <span>Base Amount:</span>
-              <strong id="renewBaseAmount" style="font-size: 16px;">₱0.00</strong>
+              <strong id="renewBaseAmount">₱0.00</strong>
             </div>
-            <div id="renewDiscountRow" style="display: none; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 15px; line-height: 1.5;">
+            <div id="renewDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 8px; color: #e74c3c;">
               <span>Student Discount (10%):</span>
-              <strong id="renewDiscountAmount" style="font-size: 16px;">-₱0.00</strong>
+              <strong id="renewDiscountAmount">-₱0.00</strong>
             </div>
-            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.3); margin: 18px 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 17px; line-height: 1.5;">
-              <span style="font-weight: 500;">Total Amount:</span>
-              <strong id="renewTotalAmount" style="font-size: 20px;">₱0.00</strong>
+            <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 12px 0;">
+            <div style="display: flex; justify-content: space-between; color: #667eea; font-size: 18px;">
+              <span style="font-weight: 600;">Total Amount:</span>
+              <strong id="renewTotalAmount" style="font-size: 22px;">₱0.00</strong>
             </div>
           </div>
 
+          <!-- Notes Field -->
           <div id="renewPaymentFields" style="display: none;">
             <div class="form-group">
-              <label for="renewPaymentMethod">Payment Method *</label>
-              <select id="renewPaymentMethod" required>
-                <option value="">Select Payment Method</option>
-                <option value="cash">Cash</option>
-                <option value="gcash">GCash</option>
-                <option value="bank-transfer">Bank Transfer</option>
-                <option value="credit-card">Credit Card</option>
-              </select>
-            </div>
-
-            <div class="form-group">
               <label for="renewPaymentNotes">
-                Notes 
-                <span class="optional-tooltip" title="This field is optional">
-                  <i class="ph ph-question"></i>
-                </span>
+                <i class="ph ph-note"></i> Notes (Optional)
               </label>
-              <textarea id="renewPaymentNotes" rows="3" placeholder="Additional notes for renewal..."></textarea>
+              <textarea id="renewPaymentNotes" rows="3" placeholder="Add any notes about this renewal..."></textarea>
             </div>
           </div>
 
           <div class="modal-actions">
-            <button type="button" class="btn-secondary" onclick="closeRenewModal()">Cancel</button>
-            <button type="submit" class="btn-primary">
-              <span id="renewSubmitBtnText">Process Renewal</span>
+            <button type="button" class="btn-secondary" onclick="closeRenewModal()">
+              <i class="ph ph-x"></i> Cancel
+            </button>
+            <button type="submit" class="btn-primary" id="renewSubmitBtn">
+              <i class="ph ph-check-circle"></i> <span id="renewSubmitBtnText">Process Renewal</span>
             </button>
           </div>
         </form>

@@ -28,21 +28,25 @@ http://localhost:3000/login.html
 ```
 Gym Management System/
 │
-├── frontend/              # Frontend files
-│   ├── html/             # All HTML pages
-│   ├── css/              # Stylesheets
-│   └── js/               # JavaScript files
+├── frontend/              # Frontend Application
+│   ├── html/             # HTML Pages (login, dashboard, etc.)
+│   ├── css/              # Stylesheets (includes user menu styles)
+│   └── js/               # JavaScript (auth, members, coaches, etc.)
 │
-├── GymManagementAPI/      # C# Backend
-│   ├── Controllers/      # API endpoints
-│   ├── Services/         # Business logic
-│   └── Models/           # Data models
+├── GymManagementAPI/      # C# .NET 8 Backend
+│   ├── Controllers/      # API Endpoints
+│   ├── Services/         # Business Logic
+│   └── Models/           # Data Models
 │
-├── docs/                  # Documentation
-├── scripts/               # Utility scripts
-├── config/                # Configuration files
-└── server.js              # Node.js backend (legacy)
+├── docs/                  # Comprehensive Documentation (46+ files)
+├── scripts/               # Database Management Scripts
+├── tools/                 # Development Utilities (acli.exe)
+└── archive/               # Legacy Node.js Backend (archived)
+    ├── server.js          # Original Node.js server
+    └── config/            # Node.js configuration
 ```
+
+📖 **For detailed structure, see** [FOLDER_STRUCTURE.md](FOLDER_STRUCTURE.md)
 
 ---
 

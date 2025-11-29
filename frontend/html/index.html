@@ -30,8 +30,28 @@
       <button id="toggleSidebar" class="menu-btn">☰</button>
       <h1>Dashboard</h1>
       <div class="user-menu">
-        <span id="userName">User</span>
-        <button onclick="logout()" class="btn-logout">Logout</button>
+        <div class="user-profile-dropdown">
+          <button class="user-profile-btn" id="userProfileBtn" onclick="toggleUserDropdown()">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <i class="ph ph-caret-down"></i>
+          </button>
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-avatar" id="userDropdownAvatar">U</div>
+              <div class="user-dropdown-info">
+                <div class="user-dropdown-name" id="userDropdownName">User</div>
+                <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                <div class="user-dropdown-role" id="userDropdownRole"></div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" onclick="logout()">
+              <i class="ph ph-sign-out"></i>
+              <span>Log out</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 

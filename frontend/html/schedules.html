@@ -30,8 +30,28 @@
       <button id="toggleSidebar" class="menu-btn">☰</button>
       <h1>Schedules</h1>
       <div class="user-menu">
-        <span id="userName">User</span>
-        <button onclick="logout()" class="btn-logout">Logout</button>
+        <div class="user-profile-dropdown">
+          <button class="user-profile-btn" id="userProfileBtn" onclick="toggleUserDropdown()">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <i class="ph ph-caret-down"></i>
+          </button>
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-avatar" id="userDropdownAvatar">U</div>
+              <div class="user-dropdown-info">
+                <div class="user-dropdown-name" id="userDropdownName">User</div>
+                <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                <div class="user-dropdown-role" id="userDropdownRole"></div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item" onclick="logout()">
+              <i class="ph ph-sign-out"></i>
+              <span>Log out</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -79,29 +99,67 @@
 
       <!-- Table View -->
       <div id="tableView" class="schedules-table-container">
-        <table class="schedules-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Class Name</th>
-              <th>Coach</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Duration</th>
-              <th>Capacity</th>
-              <th>Status</th>
-              <th class="admin-only">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="schedulesTableBody">
-            <tr>
-              <td colspan="9" style="text-align: center; padding: 40px;">
-                <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
-                <p style="color: #999; margin-top: 10px;">No schedules found. Create your first class!</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        
+        <!-- Current and Upcoming Schedules -->
+        <div class="table-section">
+          <h3 class="table-section-title">
+            <i class="ph ph-calendar-check"></i> Current & Upcoming Schedules
+          </h3>
+          <table class="schedules-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Class Name</th>
+                <th>Coach</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th class="admin-only">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="currentSchedulesTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                  <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
+                  <p style="color: #999; margin-top: 10px;">No current or upcoming schedules found.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Completed Schedules -->
+        <div class="table-section">
+          <h3 class="table-section-title">
+            <i class="ph ph-check-circle"></i> Completed Schedules
+          </h3>
+          <table class="schedules-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Class Name</th>
+                <th>Coach</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Capacity</th>
+                <th>Status</th>
+                <th class="admin-only">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="completedSchedulesTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                  <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
+                  <p style="color: #999; margin-top: 10px;">No completed schedules found.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
 
       <!-- Calendar View -->
