@@ -128,14 +128,23 @@ function populateCoachFilter() {
 
 // Render schedules table
 function renderSchedulesTable() {
-    const tbody = document.getElementById('schedulesTableBody');
+    const currentTbody = document.getElementById('currentSchedulesTableBody');
+    const completedTbody = document.getElementById('completedSchedulesTableBody');
     
     if (filteredSchedules.length === 0) {
-        tbody.innerHTML = `
+        currentTbody.innerHTML = `
             <tr>
                 <td colspan="9" style="text-align: center; padding: 40px;">
                     <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
                     <p style="color: #999; margin-top: 10px;">No schedules found.</p>
+                </td>
+            </tr>
+        `;
+        completedTbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                    <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
+                    <p style="color: #999; margin-top: 10px;">No completed schedules found.</p>
                 </td>
             </tr>
         `;
@@ -149,37 +158,144 @@ function renderSchedulesTable() {
         return dateA - dateB;
     });
     
-    tbody.innerHTML = sortedSchedules.map((schedule, index) => {
-        const status = getScheduleStatus(schedule);
-        const duration = calculateDuration(schedule.startTime, schedule.endTime);
-        const coach = allCoaches.find(c => c.id === schedule.coachId);
-        const coachName = coach ? coach.name : 'Unknown';
-        const enrolledCount = schedule.enrolledMembers ? schedule.enrolledMembers.length : 0;
-        const capacityText = schedule.capacity ? `${enrolledCount}/${schedule.capacity}` : `${enrolledCount}`;
-        
-        return `
+    // Separate completed from current/upcoming
+    const currentSchedules = sortedSchedules.filter(s => {
+        const status = getScheduleStatus(s);
+        return status === 'upcoming' || status === 'ongoing';
+    });
+    
+    const completedSchedules = sortedSchedules.filter(s => {
+        const status = getScheduleStatus(s);
+        return status === 'completed';
+    });
+    
+    // Get current user for enrollment buttons
+    const userStr = localStorage.getItem('user');
+    const currentUser = userStr ? JSON.parse(userStr) : null;
+    
+    // Render current and upcoming schedules
+    if (currentSchedules.length === 0) {
+        currentTbody.innerHTML = `
             <tr>
-                <td>${index + 1}</td>
-                <td><strong>${escapeHtml(schedule.className)}</strong></td>
-                <td><span class="coach-link" onclick="showCoachProfile('${schedule.coachId}')">${escapeHtml(coachName)}</span></td>
-                <td>${formatDate(schedule.date)}</td>
-                <td>${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}</td>
-                <td>${duration}</td>
-                <td>${capacityText}</td>
-                <td><span class="schedule-status ${status}">${status}</span></td>
-                <td class="admin-only" style="display: none;">
-                    <div class="schedule-actions">
-                        <button class="btn-icon btn-edit" onclick="editSchedule('${schedule.id}')" title="Edit">
-                            <i class="ph ph-pencil"></i>
-                        </button>
-                        <button class="btn-icon btn-delete" onclick="deleteSchedule('${schedule.id}', '${escapeHtml(schedule.className)}')" title="Delete">
-                            <i class="ph ph-trash"></i>
-                        </button>
-                    </div>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                    <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
+                    <p style="color: #999; margin-top: 10px;">No current or upcoming schedules found.</p>
                 </td>
             </tr>
         `;
-    }).join('');
+    } else {
+        currentTbody.innerHTML = currentSchedules.map((schedule, index) => {
+            const status = getScheduleStatus(schedule);
+            const duration = calculateDuration(schedule.startTime, schedule.endTime);
+            const coach = allCoaches.find(c => c.id === schedule.coachId);
+            const coachName = coach ? coach.name : 'Unknown';
+            const enrolledCount = schedule.enrolledMembers ? schedule.enrolledMembers.length : 0;
+            const capacityText = schedule.capacity ? `${enrolledCount}/${schedule.capacity}` : `${enrolledCount}`;
+            
+            // Check enrollment status for members
+            const userId = currentUser?.id || '';
+            const isEnrolled = schedule.enrolledMembers && schedule.enrolledMembers.includes(userId);
+            const isFull = schedule.capacity && enrolledCount >= schedule.capacity;
+            const canEnroll = currentUser && currentUser.role === 'member' && (status === 'upcoming' || status === 'ongoing');
+            
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${escapeHtml(schedule.className)}</strong></td>
+                    <td><span class="coach-link" onclick="showCoachProfile('${schedule.coachId}')">${escapeHtml(coachName)}</span></td>
+                    <td>${formatDate(schedule.date)}</td>
+                    <td>${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}</td>
+                    <td>${duration}</td>
+                    <td>${capacityText}</td>
+                    <td><span class="schedule-status ${status}">${status}</span></td>
+                    <td>
+                        ${currentUser?.role === 'admin' ? `
+                            <div class="schedule-actions admin-only">
+                                <button class="btn-icon btn-edit" onclick="editSchedule('${schedule.id}')" title="Edit">
+                                    <i class="ph ph-pencil"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteSchedule('${schedule.id}', '${escapeHtml(schedule.className)}')" title="Delete">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </div>
+                        ` : canEnroll ? `
+                            <div class="schedule-actions">
+                                ${isEnrolled 
+                                    ? `<button onclick="unenrollFromClass('${schedule.id}')" class="btn-icon btn-delete" title="Leave Class" style="padding: 6px 12px;">
+                                        <i class="ph ph-sign-out"></i> Leave
+                                    </button>`
+                                    : isFull 
+                                        ? `<button disabled class="btn-icon" title="Class Full" style="padding: 6px 12px; background: #95a5a6; cursor: not-allowed;">
+                                            <i class="ph ph-users"></i> Full
+                                        </button>`
+                                        : `<button onclick="enrollInClass('${schedule.id}')" class="btn-icon btn-edit" title="Join Class" style="padding: 6px 12px; background: #4CAF50; color: white;">
+                                            <i class="ph ph-sign-in"></i> Join
+                                        </button>`
+                                }
+                            </div>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    // Render completed schedules (sorted in reverse order - most recent first)
+    if (completedSchedules.length === 0) {
+        completedTbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 40px;">
+                    <i class="ph ph-calendar-x" style="font-size: 48px; color: #ccc;"></i>
+                    <p style="color: #999; margin-top: 10px;">No completed schedules found.</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        // Reverse the order for completed schedules (most recent first)
+        const reversedCompleted = [...completedSchedules].reverse();
+        
+        completedTbody.innerHTML = reversedCompleted.map((schedule, index) => {
+            const status = getScheduleStatus(schedule);
+            const duration = calculateDuration(schedule.startTime, schedule.endTime);
+            const coach = allCoaches.find(c => c.id === schedule.coachId);
+            const coachName = coach ? coach.name : 'Unknown';
+            const enrolledCount = schedule.enrolledMembers ? schedule.enrolledMembers.length : 0;
+            const capacityText = schedule.capacity ? `${enrolledCount}/${schedule.capacity}` : `${enrolledCount}`;
+            
+            // Check enrollment status for members (for display purposes)
+            const userId = currentUser?.id || '';
+            const wasEnrolled = schedule.enrolledMembers && schedule.enrolledMembers.includes(userId);
+            
+            return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${escapeHtml(schedule.className)}</strong></td>
+                    <td><span class="coach-link" onclick="showCoachProfile('${schedule.coachId}')">${escapeHtml(coachName)}</span></td>
+                    <td>${formatDate(schedule.date)}</td>
+                    <td>${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}</td>
+                    <td>${duration}</td>
+                    <td>${capacityText}</td>
+                    <td><span class="schedule-status ${status}">${status}</span></td>
+                    <td>
+                        ${currentUser?.role === 'admin' ? `
+                            <div class="schedule-actions admin-only">
+                                <button class="btn-icon btn-edit" onclick="editSchedule('${schedule.id}')" title="Edit">
+                                    <i class="ph ph-pencil"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteSchedule('${schedule.id}', '${escapeHtml(schedule.className)}')" title="Delete">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </div>
+                        ` : currentUser?.role === 'member' && wasEnrolled ? `
+                            <span style="color: #4CAF50; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                                <i class="ph ph-check-circle"></i> Attended
+                            </span>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
 }
 
 // Get schedule status
@@ -797,17 +913,17 @@ async function showCoachProfile(coachId) {
     
     // Populate coach info
     document.getElementById('coachName').textContent = coach.name;
-    document.getElementById('coachSpecialty').innerHTML = `<i class="ph ph-star"></i> ${coach.specialty || 'General Fitness'}`;
+    document.getElementById('coachSpecialty').innerHTML = `<i class="ph ph-star"></i> ${coach.specialization || 'General Fitness'}`;
     document.getElementById('coachExperience').innerHTML = `<i class="ph ph-briefcase"></i> ${coach.experience || 'N/A'} years experience`;
     document.getElementById('coachBio').textContent = coach.bio || 'No bio available.';
     
-    // Set photo
+    // Set photo - use coach.image if available, otherwise use placeholder with initial
     const photo = document.getElementById('coachPhoto');
-    if (coach.photo) {
-        photo.src = coach.photo;
-    } else {
-        photo.src = 'https://via.placeholder.com/100?text=' + encodeURIComponent(coach.name.charAt(0));
-    }
+    const imageUrl = coach.image || `https://via.placeholder.com/100/4CAF50/FFFFFF?text=${encodeURIComponent(coach.name.charAt(0))}`;
+    photo.src = imageUrl;
+    photo.onerror = function() {
+        this.src = `https://via.placeholder.com/100/4CAF50/FFFFFF?text=${encodeURIComponent(coach.name.charAt(0))}`;
+    };
     
     // Populate skills
     const skillsContainer = document.getElementById('coachSkills');
@@ -930,6 +1046,10 @@ async function enrollInClass(scheduleId) {
             showMessage('Successfully enrolled in class!', 'success');
             // Reload schedules to update UI
             await loadSchedules();
+            // Re-render the current view
+            if (currentView === 'table') {
+                renderSchedulesTable();
+            }
             // Re-render the day view if it's open
             const dayViewModal = document.getElementById('dayViewModal');
             if (dayViewModal && dayViewModal.style.display === 'flex') {
@@ -976,6 +1096,10 @@ async function unenrollFromClass(scheduleId) {
             showMessage('Successfully left the class', 'success');
             // Reload schedules to update UI
             await loadSchedules();
+            // Re-render the current view
+            if (currentView === 'table') {
+                renderSchedulesTable();
+            }
             // Re-render the day view if it's open
             const dayViewModal = document.getElementById('dayViewModal');
             if (dayViewModal && dayViewModal.style.display === 'flex') {

@@ -21,6 +21,9 @@ public class Member
     [BsonElement("phone")]
     public string Phone { get; set; } = string.Empty;
 
+    [BsonElement("age")]
+    public int Age { get; set; } = 0;
+
     [BsonElement("membershipType")]
     public string MembershipType { get; set; } = string.Empty;
 

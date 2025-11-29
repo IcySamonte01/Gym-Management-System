@@ -117,12 +117,6 @@ function displayPayments(payments) {
             </td>
             <td class="amount-cell">₱${payment.amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             <td>
-                <span class="payment-method-badge">
-                    ${getPaymentMethodIcon(payment.paymentMethod)}
-                    ${escapeHtml(payment.paymentMethod)}
-                </span>
-            </td>
-            <td>
                 <span class="status-badge status-${payment.status.toLowerCase()}">
                     ${escapeHtml(payment.status)}
                 </span>

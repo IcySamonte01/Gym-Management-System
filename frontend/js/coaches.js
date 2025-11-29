@@ -77,9 +77,13 @@ function displayCoaches(coaches) {
     grid.innerHTML = coaches.map(coach => {
         // Handle both 'id' and 'Id' (case sensitivity)
         const coachId = coach.id || coach.Id;
+        // Use coach image if available, otherwise use placeholder
+        const imageUrl = coach.image || 'https://via.placeholder.com/90/4CAF50/FFFFFF?text=' + encodeURIComponent(coach.name.charAt(0));
+        const fallbackUrl = 'https://via.placeholder.com/90/4CAF50/FFFFFF?text=' + encodeURIComponent(coach.name.charAt(0));
+        
         return `
         <div class="coach-card">
-            <img src="https://via.placeholder.com/90" alt="Coach" class="coach-photo">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(coach.name)}" class="coach-photo" onerror="this.onerror=null; this.src='${fallbackUrl}';">
             <h3 class="coach-name">${escapeHtml(coach.name)}</h3>
             <p class="coach-role">${escapeHtml(coach.specialization || 'N/A')}</p>
             <p class="coach-contact">📞 ${escapeHtml(coach.phone)}</p>
@@ -96,10 +100,14 @@ function displayCoaches(coaches) {
                     </button>
                 </div>
             ` : `
-                <button class="view-btn">View Profile</button>
+                <div style="margin-top: 10px;">
+                    <button class="btn-primary" onclick="viewCoachProfile('${coachId}')" style="padding: 8px 16px; width: 100%;">
+                        <i class="ph ph-eye"></i> View Profile
+                    </button>
+                </div>
             `}
         </div>
-    `;
+        `;
     }).join('');
 }
 
@@ -169,6 +177,10 @@ function setupModal() {
         if (event.target == modal) {
             closeCoachModal();
         }
+        const viewModal = document.getElementById('viewCoachModal');
+        if (event.target == viewModal) {
+            closeViewCoachModal();
+        }
     };
 
     // Handle form submission
@@ -206,6 +218,7 @@ function openCoachModal(coachId = null) {
             document.getElementById('experience').value = coach.experience || '';
             document.getElementById('certifications').value = coach.certifications || '';
             document.getElementById('bio').value = coach.bio || '';
+            document.getElementById('imageUrl').value = coach.image || '';
             document.getElementById('coachStatus').value = coach.status || 'active';
         }
     } else {
@@ -256,6 +269,11 @@ async function saveCoach() {
     const bio = document.getElementById('bio').value.trim();
     if (bio) {
         coachData.bio = bio;
+    }
+
+    const imageUrl = document.getElementById('imageUrl').value.trim();
+    if (imageUrl) {
+        coachData.image = imageUrl;
     }
 
     // Validation
@@ -340,6 +358,71 @@ async function deleteCoach(coachId, coachName) {
         console.error('Error deleting coach:', error);
         showMessage('Error: ' + error.message, 'error');
     }
+}
+
+// View Coach Profile (Read-only for non-admins)
+function viewCoachProfile(coachId) {
+    const coach = allCoaches.find(c => (c.id || c.Id) === coachId);
+    if (!coach) {
+        showMessage('Coach not found', 'error');
+        return;
+    }
+
+    const modal = document.getElementById('viewCoachModal');
+    
+    // Set coach photo with fallback
+    const photoElement = document.getElementById('viewCoachPhoto');
+    const imageUrl = coach.image || 'https://via.placeholder.com/120/4CAF50/FFFFFF?text=' + encodeURIComponent(coach.name.charAt(0));
+    photoElement.src = imageUrl;
+    photoElement.onerror = function() {
+        this.onerror = null;
+        this.src = 'https://via.placeholder.com/120/4CAF50/FFFFFF?text=' + encodeURIComponent(coach.name.charAt(0));
+    };
+    
+    // Set basic info
+    document.getElementById('viewCoachName').textContent = coach.name;
+    document.getElementById('viewCoachSpecialization').textContent = coach.specialization || 'N/A';
+    document.getElementById('viewCoachEmail').textContent = coach.email;
+    document.getElementById('viewCoachPhone').textContent = coach.phone;
+    
+    // Set status badge
+    const statusBadge = document.getElementById('viewCoachStatusBadge');
+    const status = coach.status || 'active';
+    statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    statusBadge.className = 'status-badge status-' + status;
+    
+    // Show/hide experience section
+    const experienceSection = document.getElementById('viewCoachExperienceSection');
+    if (coach.experience) {
+        experienceSection.style.display = 'block';
+        document.getElementById('viewCoachExperience').textContent = coach.experience + ' years of experience';
+    } else {
+        experienceSection.style.display = 'none';
+    }
+    
+    // Show/hide certifications section
+    const certificationsSection = document.getElementById('viewCoachCertificationsSection');
+    if (coach.certifications) {
+        certificationsSection.style.display = 'block';
+        document.getElementById('viewCoachCertifications').textContent = coach.certifications;
+    } else {
+        certificationsSection.style.display = 'none';
+    }
+    
+    // Show/hide bio section
+    const bioSection = document.getElementById('viewCoachBioSection');
+    if (coach.bio) {
+        bioSection.style.display = 'block';
+        document.getElementById('viewCoachBio').textContent = coach.bio;
+    } else {
+        bioSection.style.display = 'none';
+    }
+    
+    modal.style.display = 'block';
+}
+
+function closeViewCoachModal() {
+    document.getElementById('viewCoachModal').style.display = 'none';
 }
 
 // Utility functions

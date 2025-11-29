@@ -637,6 +637,17 @@ function openMemberModal(memberId = null) {
             }
             
             document.getElementById('memberStatus').value = member.status || 'active';
+            
+            // Show "Change Coach" section if member has a coach
+            const changeCoachField = document.getElementById('changeCoachField');
+            if (member.membershipType === 'Monthly with Coach' || member.membershipType === 'Annual with Coach') {
+                changeCoachField.style.display = 'block';
+                document.getElementById('currentCoachName').textContent = member.coachName || 'No coach assigned';
+                // Store current member for coach change
+                window.editingMember = member;
+            } else {
+                changeCoachField.style.display = 'none';
+            }
         }
     } else {
         // Add mode
@@ -970,7 +981,7 @@ async function processPayment() {
     const membershipType = document.getElementById('paymentMembershipType').value;
     const isStudent = document.getElementById('paymentIsStudent').value === 'true';
     const amountText = document.getElementById('paymentAmount').value;
-    const paymentMethod = document.getElementById('paymentMethod').value;
+    const paymentMethod = 'Cash'; // Default payment method
     const notes = document.getElementById('paymentNotes').value.trim();
     
     // Parse amount (remove ₱ and commas)
@@ -979,11 +990,6 @@ async function processPayment() {
     // Validation
     if (!amount || amount <= 0) {
         showMessage('Please enter a valid payment amount', 'error');
-        return;
-    }
-    
-    if (!paymentMethod) {
-        showMessage('Please select a payment method', 'error');
         return;
     }
     
@@ -1097,6 +1103,29 @@ async function openCoachSelectionModal(member) {
 
 function closeCoachModal() {
     document.getElementById('coachModal').style.display = 'none';
+    window.editingMember = null; // Clear editing member reference
+}
+
+// Open coach modal to change coach for existing member
+async function openChangeCoachModal() {
+    const modal = document.getElementById('coachModal');
+    
+    if (!window.editingMember) {
+        showMessage('Error: No member selected', 'error');
+        return;
+    }
+    
+    // Set member info
+    document.getElementById('coachSelectionMemberName').textContent = window.editingMember.name;
+    document.getElementById('coachSelectionMembershipType').textContent = window.editingMember.membershipType;
+    
+    selectedCoachId = null;
+    selectedCoachName = null;
+    
+    // Load coaches
+    await loadCoaches();
+    
+    modal.style.display = 'block';
 }
 
 async function loadCoaches() {
@@ -1133,15 +1162,18 @@ function displayCoachesForSelection() {
         return;
     }
 
-    coachList.innerHTML = allCoaches.map(coach => `
-        <div class="coach-card" onclick="selectCoach('${coach.id}', '${escapeHtml(coach.name)}')">
-            <div class="coach-card-header">
-                <img src="${coach.image || '/images/default-coach.png'}" alt="${escapeHtml(coach.name)}" class="coach-avatar">
-                <div class="coach-info">
-                    <h3>${escapeHtml(coach.name)}</h3>
-                    <p class="coach-specialty">${escapeHtml(coach.specialty || 'General Fitness')}</p>
+    coachList.innerHTML = allCoaches.map(coach => {
+        // Use coach image if available, otherwise use placeholder with initial
+        const imageUrl = coach.image || `https://via.placeholder.com/100/4CAF50/FFFFFF?text=${encodeURIComponent(coach.name.charAt(0))}`;
+        return `
+            <div class="coach-card" onclick="selectCoach('${coach.id}', '${escapeHtml(coach.name)}')">
+                <div class="coach-card-header">
+                    <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(coach.name)}" class="coach-avatar" onerror="this.src='https://via.placeholder.com/100/4CAF50/FFFFFF?text=${encodeURIComponent(coach.name.charAt(0))}'">
+                    <div class="coach-info">
+                        <h3>${escapeHtml(coach.name)}</h3>
+                        <p class="coach-specialty">${escapeHtml(coach.specialization || 'General Fitness')}</p>
+                    </div>
                 </div>
-            </div>
             <div class="coach-card-body">
                 <p class="coach-bio">${escapeHtml(coach.bio || 'No bio available')}</p>
                 ${coach.certifications ? `
@@ -1163,14 +1195,48 @@ function displayCoachesForSelection() {
                 </button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 async function selectCoach(coachId, coachName) {
     selectedCoachId = coachId;
     selectedCoachName = coachName;
     
-    // Store coach selection in pending member data
+    // Check if we're changing coach for existing member
+    if (window.editingMember && window.editingMember.id && window.editingMember.id !== 'pending') {
+        // Update existing member's coach
+        try {
+            const response = await authenticatedFetch(`/api/members/${window.editingMember.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    coachId: coachId,
+                    coachName: coachName
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to update coach');
+            }
+
+            showMessage(`Coach changed to ${coachName} successfully!`, 'success');
+            closeCoachModal();
+            await loadMembers();
+            
+            // Clear editing member reference
+            window.editingMember = null;
+        } catch (error) {
+            console.error('Error changing coach:', error);
+            showMessage('Error: ' + error.message, 'error');
+        }
+        return;
+    }
+    
+    // Store coach selection in pending member data (for new members)
     if (pendingMemberData) {
         pendingMemberData.coachId = coachId;
         pendingMemberData.coachName = coachName;
@@ -1224,42 +1290,48 @@ async function selectCoach(coachId, coachName) {
     }
 }
 // Renew Membership Modal Functions
-function openRenewModal() {
+function openRenewModal(memberId = null) {
     const modal = document.getElementById('renewModal');
     const form = document.getElementById('renewForm');
     const memberSelect = document.getElementById('renewMemberSelect');
     
     // Reset form
     form.reset();
+    document.getElementById('renewMemberInfo').style.display = 'none';
+    document.getElementById('renewMembershipTypeGroup').style.display = 'none';
+    document.getElementById('renewStudentGroup').style.display = 'none';
+    document.getElementById('renewPaymentInfo').style.display = 'none';
+    document.getElementById('renewPaymentFields').style.display = 'none';
     
-    // Clear and populate member dropdown
-    memberSelect.innerHTML = '<option value="">-- Select a Member --</option>';
+    // Populate member dropdown with non-trial members
+    memberSelect.innerHTML = '<option value="">-- Select a member to renew --</option>';
     
-    // Add all members to dropdown, sorted by name (exclude Trial members)
-    const sortedMembers = [...allMembers]
-        .filter(member => member.membershipType !== 'Trial') // Exclude Trial members
+    // Filter out Trial members and sort by name
+    const renewableMembers = allMembers
+        .filter(m => m.membershipType !== 'Trial')
         .sort((a, b) => a.name.localeCompare(b.name));
     
-    sortedMembers.forEach(member => {
+    renewableMembers.forEach(member => {
         const option = document.createElement('option');
         option.value = member.id;
-        
-        // Check if expired
-        let isExpired = false;
-        if (member.expirationDate) {
-            const expDate = new Date(member.expirationDate);
-            const now = new Date();
-            if (expDate <= now) {
-                isExpired = true;
-            }
-        }
-        
-        option.textContent = `${member.name} ${member.membershipType || 'N/A'}${isExpired ? ' (EXPIRED)' : ''}`;
+        option.textContent = member.name; // Just the name, no membership type
         memberSelect.appendChild(option);
     });
     
+    // If memberId is provided (called from member card), select that member
+    if (memberId) {
+        const member = allMembers.find(m => m.id === memberId);
+        if (member && member.membershipType !== 'Trial') {
+            memberSelect.value = memberId;
+            document.getElementById('renewMemberId').value = memberId;
+            handleRenewMemberSelection(memberId);
+        } else {
+            showMessage('Member not found or is a Trial member', 'error');
+            return;
+        }
+    }
+    
     // Setup event listeners
-    memberSelect.onchange = handleRenewMemberSelection;
     document.getElementById('renewMembershipType').onchange = updateRenewPaymentSummary;
     document.getElementById('renewIsStudent').onchange = updateRenewPaymentSummary;
     
@@ -1276,12 +1348,23 @@ function closeRenewModal() {
     document.getElementById('renewModal').style.display = 'none';
 }
 
-function handleRenewMemberSelection() {
-    const memberId = document.getElementById('renewMemberSelect').value;
+function handleRenewMemberSelection(memberId) {
+    // If no memberId provided, try to get from select
+    if (!memberId) {
+        memberId = document.getElementById('renewMemberSelect').value;
+    }
+    
+    // Store the memberId in hidden input
+    document.getElementById('renewMemberId').value = memberId || '';
+    
     const memberInfo = document.getElementById('renewMemberInfo');
+    const membershipTypeGroup = document.getElementById('renewMembershipTypeGroup');
+    const studentGroup = document.getElementById('renewStudentGroup');
     
     if (!memberId) {
         memberInfo.style.display = 'none';
+        membershipTypeGroup.style.display = 'none';
+        studentGroup.style.display = 'none';
         document.getElementById('renewPaymentInfo').style.display = 'none';
         document.getElementById('renewPaymentFields').style.display = 'none';
         return;
@@ -1291,31 +1374,31 @@ function handleRenewMemberSelection() {
     const member = allMembers.find(m => m.id === memberId);
     if (!member) return;
     
-    // Display member info
+    // Display member info - just name, no membership type
     document.getElementById('renewInfoName').textContent = member.name;
     document.getElementById('renewInfoType').textContent = member.membershipType || 'N/A';
     
     // Check if expired
     let statusText = member.status || 'active';
-    let statusColor = '#4CAF50';
     if (member.expirationDate) {
         const expDate = new Date(member.expirationDate);
         const now = new Date();
         if (expDate <= now) {
-            statusText = 'expired';
-            statusColor = '#f44336';
+            statusText = 'EXPIRED';
+        } else {
+            statusText = 'ACTIVE';
         }
     }
     
     const statusSpan = document.getElementById('renewInfoStatus');
     statusSpan.textContent = statusText;
-    statusSpan.style.color = statusColor;
-    statusSpan.style.fontWeight = 'bold';
-    statusSpan.style.textTransform = 'uppercase';
     
     document.getElementById('renewInfoExpiration').textContent = member.expirationDate ? formatDate(member.expirationDate) : 'N/A';
     
+    // Show member info card and membership type dropdown
     memberInfo.style.display = 'block';
+    membershipTypeGroup.style.display = 'block';
+    studentGroup.style.display = 'block';
     
     // Update payment summary if membership type is selected
     updateRenewPaymentSummary();
@@ -1371,10 +1454,10 @@ function updateRenewPaymentSummary() {
 }
 
 async function processRenewal() {
-    const memberId = document.getElementById('renewMemberSelect').value;
+    const memberId = document.getElementById('renewMemberId').value;
     const membershipType = document.getElementById('renewMembershipType').value;
     const isStudent = document.getElementById('renewIsStudent').checked;
-    const paymentMethod = document.getElementById('renewPaymentMethod').value;
+    const paymentMethod = 'Cash'; // Default payment method
     const notes = document.getElementById('renewPaymentNotes').value.trim();
     
     // Validation
@@ -1388,10 +1471,11 @@ async function processRenewal() {
         return;
     }
     
-    if (!paymentMethod) {
-        showMessage('Please select a payment method', 'error');
-        return;
-    }
+    // Disable submit button
+    const submitBtn = document.getElementById('renewSubmitBtn');
+    const submitBtnText = document.getElementById('renewSubmitBtnText');
+    submitBtn.disabled = true;
+    submitBtnText.textContent = 'Processing...';
     
     // Find member
     const member = allMembers.find(m => m.id === memberId);
@@ -1504,5 +1588,11 @@ async function processRenewal() {
     } catch (error) {
         console.error('Error processing renewal:', error);
         showMessage('Error: ' + error.message, 'error');
+        
+        // Re-enable submit button on error
+        const submitBtn = document.getElementById('renewSubmitBtn');
+        const submitBtnText = document.getElementById('renewSubmitBtnText');
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtnText) submitBtnText.textContent = 'Process Renewal';
     }
 }
