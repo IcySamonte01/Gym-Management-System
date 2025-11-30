@@ -659,6 +659,15 @@ function viewDaySchedules(dateStr) {
             z-index: 10;
         `;
         
+        // Add click handler to open detailed view
+        card.onclick = function(e) {
+            // Prevent triggering if clicking on buttons inside the card
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                return;
+            }
+            openScheduleDetailModal(schedule);
+        };
+        
         // Get current user
         const userStr = localStorage.getItem('user');
         const currentUser = userStr ? JSON.parse(userStr) : null;
@@ -969,6 +978,149 @@ async function showCoachProfile(coachId) {
 // Close coach profile
 function closeCoachProfile() {
     document.getElementById('coachProfileModal').style.display = 'none';
+}
+
+// Open schedule detail modal
+function openScheduleDetailModal(schedule) {
+    const coach = allCoaches.find(c => c.id === schedule.coachId);
+    const coachName = coach ? coach.name : 'Unknown';
+    const status = getScheduleStatus(schedule);
+    const duration = calculateDuration(schedule.startTime, schedule.endTime);
+    
+    // Get current user
+    const userStr = localStorage.getItem('user');
+    const currentUser = userStr ? JSON.parse(userStr) : null;
+    const userId = currentUser?.id || '';
+    
+    // Check enrollment
+    const isEnrolled = schedule.enrolledMembers && schedule.enrolledMembers.includes(userId);
+    const enrolledCount = schedule.enrolledMembers ? schedule.enrolledMembers.length : 0;
+    const isFull = schedule.capacity && enrolledCount >= schedule.capacity;
+    const canEnroll = currentUser && currentUser.role === 'member' && (status === 'upcoming' || status === 'ongoing');
+    
+    // Set title
+    document.getElementById('scheduleDetailTitle').textContent = schedule.className;
+    
+    // Set status badge
+    const statusBadge = document.getElementById('detailStatusBadge');
+    statusBadge.className = `detail-status-badge status-${status}`;
+    document.getElementById('detailStatus').textContent = status;
+    
+    // Set schedule info
+    document.getElementById('detailDate').textContent = formatDate(schedule.date);
+    document.getElementById('detailTime').textContent = `${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}`;
+    document.getElementById('detailDuration').textContent = duration;
+    
+    // Set coach info
+    document.getElementById('detailCoachName').textContent = coachName;
+    document.getElementById('detailCoachSpecialty').textContent = coach?.specialization || 'General Fitness';
+    
+    // Set coach photo
+    const coachPhoto = document.getElementById('detailCoachPhoto');
+    const imageUrl = coach?.image || `https://via.placeholder.com/70/4CAF50/FFFFFF?text=${encodeURIComponent(coachName.charAt(0))}`;
+    coachPhoto.src = imageUrl;
+    coachPhoto.onerror = function() {
+        this.src = `https://via.placeholder.com/70/4CAF50/FFFFFF?text=${encodeURIComponent(coachName.charAt(0))}`;
+    };
+    
+    // Set view coach button
+    document.getElementById('detailViewCoachBtn').onclick = function() {
+        closeScheduleDetailModal();
+        showCoachProfile(schedule.coachId);
+    };
+    
+    // Set capacity
+    const capacityFill = document.getElementById('detailCapacityFill');
+    const capacityText = document.getElementById('detailCapacityText');
+    
+    if (schedule.capacity) {
+        const percentage = (enrolledCount / schedule.capacity) * 100;
+        capacityFill.style.width = percentage + '%';
+        capacityFill.className = 'capacity-fill' + (isFull ? ' full' : '');
+        capacityText.textContent = `${enrolledCount} / ${schedule.capacity} enrolled`;
+    } else {
+        capacityFill.style.width = '100%';
+        capacityFill.className = 'capacity-fill';
+        capacityText.textContent = `${enrolledCount} enrolled (No limit)`;
+    }
+    
+    // Set description
+    const descSection = document.getElementById('detailDescriptionSection');
+    if (schedule.description) {
+        descSection.style.display = 'block';
+        document.getElementById('detailDescription').textContent = schedule.description;
+    } else {
+        descSection.style.display = 'none';
+    }
+    
+    // Set actions
+    const actionsDiv = document.getElementById('detailActions');
+    actionsDiv.innerHTML = '';
+    
+    if (currentUser?.role === 'admin') {
+        // Admin actions
+        actionsDiv.innerHTML = `
+            <button class="btn-edit" onclick="closeScheduleDetailModal(); editSchedule('${schedule.id}');">
+                <i class="ph ph-pencil"></i> Edit Schedule
+            </button>
+            <button class="btn-delete" onclick="closeScheduleDetailModal(); deleteSchedule('${schedule.id}', '${escapeHtml(schedule.className)}');">
+                <i class="ph ph-trash"></i> Delete Schedule
+            </button>
+        `;
+    } else if (canEnroll) {
+        // Member actions
+        if (isEnrolled) {
+            actionsDiv.innerHTML = `
+                <button class="btn-leave" onclick="handleEnrollmentFromDetail('${schedule.id}', 'leave')">
+                    <i class="ph ph-sign-out"></i> Leave Class
+                </button>
+            `;
+        } else if (isFull) {
+            actionsDiv.innerHTML = `
+                <button class="btn-full" disabled>
+                    <i class="ph ph-users"></i> Class is Full
+                </button>
+            `;
+        } else {
+            actionsDiv.innerHTML = `
+                <button class="btn-enroll" onclick="handleEnrollmentFromDetail('${schedule.id}', 'join')">
+                    <i class="ph ph-sign-in"></i> Join Class
+                </button>
+            `;
+        }
+    }
+    
+    // Show modal
+    document.getElementById('scheduleDetailModal').style.display = 'flex';
+}
+
+// Close schedule detail modal
+function closeScheduleDetailModal() {
+    document.getElementById('scheduleDetailModal').style.display = 'none';
+}
+
+// Handle enrollment from detail modal
+async function handleEnrollmentFromDetail(scheduleId, action) {
+    if (action === 'join') {
+        await enrollInClass(scheduleId);
+    } else if (action === 'leave') {
+        await unenrollFromClass(scheduleId);
+    }
+    
+    // Reload schedules
+    await loadSchedules();
+    
+    // Find the updated schedule and reopen the modal
+    const schedule = allSchedules.find(s => s.id === scheduleId);
+    if (schedule) {
+        openScheduleDetailModal(schedule);
+    }
+    
+    // Also refresh the day view if it's open
+    const dayViewModal = document.getElementById('dayViewModal');
+    if (dayViewModal && dayViewModal.style.display === 'flex') {
+        viewDaySchedules(schedule.date);
+    }
 }
 
 // Utility functions

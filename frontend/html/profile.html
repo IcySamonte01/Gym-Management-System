@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/members.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Gym Management System</div>
+    <nav>
+        <a href="dashboard.html" class="nav-item-admin"><i class="ph ph-house"></i> Dashboard</a>
+        <a href="members.html" class="nav-item-admin"><i class="ph ph-users"></i> Members</a>
+        <a href="coaches.html" class="nav-item-all"><i class="ph ph-user"></i> Coaches</a>
+        <a href="payments.html" class="nav-item-admin"><i class="ph ph-coins"></i> Payment History</a>
+        <a href="schedules.html" class="nav-item-all"><i class="ph ph-calendar"></i> Schedules</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main">
+
+    <!-- Header -->
+    <header class="topbar">
+      <button id="toggleSidebar" class="menu-btn">☰</button>
+      <h1>My Profile</h1>
+      <div class="user-menu">
+        <div class="user-profile-dropdown">
+          <button class="user-profile-btn" id="userProfileBtn" onclick="toggleUserDropdown()">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">User</span>
+            <i class="ph ph-caret-down"></i>
+          </button>
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="user-dropdown-header">
+              <div class="user-dropdown-avatar" id="userDropdownAvatar">U</div>
+              <div class="user-dropdown-info">
+                <div class="user-dropdown-name" id="userDropdownName">User</div>
+                <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                <div class="user-dropdown-role" id="userDropdownRole"></div>
+              </div>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="profile.html" class="user-dropdown-item">
+              <i class="ph ph-user-circle"></i>
+              <span>My Profile</span>
+            </a>
+            <button class="user-dropdown-item" onclick="logout()">
+              <i class="ph ph-sign-out"></i>
+              <span>Log out</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Profile Content -->
+    <section class="content">
+      
+      <!-- Profile Header Card -->
+      <div class="profile-header-card">
+        <div class="profile-avatar-large">
+          <i class="ph ph-user-circle"></i>
+        </div>
+        <div class="profile-header-info">
+          <h2 id="profileName">Loading...</h2>
+          <p id="profileEmail">email@example.com</p>
+          <div class="profile-status-badge" id="profileStatusBadge">
+            <span id="profileStatus">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Membership Status Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="ph ph-identification-card"></i> Membership Information</h3>
+        </div>
+        <div class="card-body profile-info-grid">
+          <div class="profile-info-item">
+            <label>Membership Type</label>
+            <p id="profileMembershipType">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Member Since</label>
+            <p id="profileJoinDate">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Membership Expires</label>
+            <p id="profileExpirationDate" class="expiration-date">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Days Remaining</label>
+            <p id="profileDaysRemaining" class="days-remaining">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Status</label>
+            <p id="profileMemberStatus">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Trial Member</label>
+            <p id="profileIsTrial">-</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="ph ph-user"></i> Personal Information</h3>
+        </div>
+        <div class="card-body profile-info-grid">
+          <div class="profile-info-item">
+            <label>Full Name</label>
+            <p id="profileFullName">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Age</label>
+            <p id="profileAge">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Email Address</label>
+            <p id="profileEmailAddress">-</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Phone Number</label>
+            <p id="profilePhone">-</p>
+          </div>
+          <div class="profile-info-item full-width">
+            <label>Address</label>
+            <p id="profileAddress">-</p>
+          </div>
+          <div class="profile-info-item full-width">
+            <label>Emergency Contact</label>
+            <p id="profileEmergencyContact">-</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coach Information Card -->
+      <div class="card" id="coachInfoCard" style="display: none;">
+        <div class="card-header">
+          <h3><i class="ph ph-barbell"></i> Assigned Coach</h3>
+        </div>
+        <div class="card-body profile-info-grid">
+          <div class="profile-info-item">
+            <label>Coach Name</label>
+            <p id="profileCoachName">-</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Renewal Notice -->
+      <div class="renewal-notice" id="renewalNotice" style="display: none;">
+        <i class="ph ph-warning"></i>
+        <div>
+          <strong>Membership Expiring Soon!</strong>
+          <p>Your membership will expire soon. Please contact the administrator to renew your membership.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="/js/auth-check.js"></script>
+  <script src="/js/script.js"></script>
+  <script>
+    // Profile page specific JavaScript
+    let currentUser = null;
+
+    // Load profile data on page load
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadProfileData();
+    });
+
+    async function loadProfileData() {
+      try {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (!token) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Check if user is a coach
+        if (user.role === 'coach') {
+          await loadCoachProfile(user, token);
+          return;
+        }
+
+        // Get user email to fetch member data
+        const userEmail = user.email || user.name; // Fallback to name if email not in user object
+
+        // Fetch member data from API
+        const response = await fetch('/api/members', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile data');
+        }
+
+        const members = await response.json();
+        
+        // Find current user's member record by email
+        const memberData = members.find(m => m.email === userEmail);
+
+        if (!memberData) {
+          showError('Profile data not found. Please contact your administrator.');
+          return;
+        }
+
+        currentUser = memberData;
+        displayProfileData(memberData);
+        checkMembershipExpiration(memberData);
+
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        showError('Failed to load profile data. Please try again.');
+      }
+    }
+
+    async function loadCoachProfile(user, token) {
+      try {
+        // Fetch coach data from API
+        const response = await fetch('/api/coaches', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch coach profile data');
+        }
+
+        const coaches = await response.json();
+        
+        // Find current user's coach record by email
+        const userEmail = user.email || user.name;
+        const coachData = coaches.find(c => c.email === userEmail || c.name === user.name);
+
+        if (!coachData) {
+          showError('Coach profile data not found. Please contact your administrator.');
+          return;
+        }
+
+        currentUser = coachData;
+        displayCoachProfile(coachData);
+
+      } catch (error) {
+        console.error('Error loading coach profile:', error);
+        showError('Failed to load coach profile data. Please try again.');
+      }
+    }
+
+    function displayCoachProfile(coach) {
+      // Header
+      document.getElementById('profileName').textContent = coach.name;
+      document.getElementById('profileEmail').textContent = coach.email;
+      document.getElementById('profileStatus').textContent = coach.status.charAt(0).toUpperCase() + coach.status.slice(1);
+      
+      // Status badge styling
+      const statusBadge = document.getElementById('profileStatusBadge');
+      statusBadge.className = 'profile-status-badge status-' + coach.status;
+
+      // Hide member-specific sections and show coach-specific info
+      const content = document.querySelector('.content');
+      
+      // Remove membership card
+      const membershipCard = content.querySelector('.card');
+      if (membershipCard) {
+        membershipCard.remove();
+      }
+
+      // Update personal information card for coach
+      const personalInfoCard = content.querySelectorAll('.card')[0];
+      if (personalInfoCard) {
+        personalInfoCard.querySelector('.card-header h3').innerHTML = '<i class="ph ph-user"></i> Coach Information';
+        
+        const infoGrid = personalInfoCard.querySelector('.profile-info-grid');
+        infoGrid.innerHTML = `
+          <div class="profile-info-item">
+            <label>Full Name</label>
+            <p>${coach.name}</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Email Address</label>
+            <p>${coach.email}</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Phone Number</label>
+            <p>${coach.phone || 'Not Set'}</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Specialization</label>
+            <p>${coach.specialization || 'Not Set'}</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Experience</label>
+            <p>${coach.experience ? coach.experience + ' years' : 'Not Set'}</p>
+          </div>
+          <div class="profile-info-item">
+            <label>Status</label>
+            <p>${coach.status.charAt(0).toUpperCase() + coach.status.slice(1)}</p>
+          </div>
+          <div class="profile-info-item full-width">
+            <label>Bio 
+              <button class="btn-edit-bio" onclick="toggleBioEdit()" title="Edit Bio">
+                <i class="ph ph-pencil"></i> Edit
+              </button>
+            </label>
+            <p id="coachBioText">${coach.bio || 'No bio provided'}</p>
+            <div id="coachBioEdit" style="display: none;">
+              <textarea id="coachBioTextarea" rows="4" style="width: 100%; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;">${coach.bio || ''}</textarea>
+              <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-save-bio" onclick="saveBio()">
+                  <i class="ph ph-check"></i> Save
+                </button>
+                <button class="btn-cancel-bio" onclick="cancelBioEdit()">
+                  <i class="ph ph-x"></i> Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Add upcoming classes section
+      fetchCoachUpcomingClasses(coach.id);
+
+      // Remove renewal notice (not applicable for coaches)
+      const renewalNotice = document.getElementById('renewalNotice');
+      if (renewalNotice) {
+        renewalNotice.remove();
+      }
+
+      // Hide coach info card (not applicable)
+      const coachInfoCard = document.getElementById('coachInfoCard');
+      if (coachInfoCard) {
+        coachInfoCard.style.display = 'none';
+      }
+    }
+
+    async function fetchCoachUpcomingClasses(coachId) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/schedules', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) return;
+
+        const schedules = await response.json();
+        const coachSchedules = schedules.filter(s => {
+          const scheduleDate = new Date(s.date + 'T' + s.startTime);
+          return s.coachId === coachId && scheduleDate > new Date();
+        }).sort((a, b) => new Date(a.date + 'T' + a.startTime) - new Date(b.date + 'T' + b.startTime));
+
+        // Add upcoming classes card
+        const content = document.querySelector('.content');
+        const classesCard = document.createElement('div');
+        classesCard.className = 'card';
+        classesCard.innerHTML = `
+          <div class="card-header">
+            <h3><i class="ph ph-calendar"></i> My Upcoming Classes</h3>
+          </div>
+          <div class="card-body">
+            ${coachSchedules.length > 0 ? `
+              <div class="upcoming-classes-list">
+                ${coachSchedules.slice(0, 10).map(schedule => {
+                  const enrolledCount = schedule.enrolledMembers ? schedule.enrolledMembers.length : 0;
+                  const capacityText = schedule.capacity ? `${enrolledCount}/${schedule.capacity}` : `${enrolledCount}`;
+                  return `
+                    <div class="upcoming-class-item">
+                      <div class="class-item-header">
+                        <strong>${schedule.className}</strong>
+                        <span class="class-capacity">${capacityText} enrolled</span>
+                      </div>
+                      <div class="class-item-details">
+                        <span><i class="ph ph-calendar"></i> ${formatDate(schedule.date)}</span>
+                        <span><i class="ph ph-clock"></i> ${formatTime(schedule.startTime)} - ${formatTime(schedule.endTime)}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : '<p style="color: #999; text-align: center; padding: 20px;">No upcoming classes scheduled</p>'}
+          </div>
+        `;
+        content.appendChild(classesCard);
+
+      } catch (error) {
+        console.error('Error fetching coach schedules:', error);
+      }
+    }
+
+    function formatTime(timeStr) {
+      const [hours, minutes] = timeStr.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    }
+
+    // Bio editing functions
+    function toggleBioEdit() {
+      document.getElementById('coachBioText').style.display = 'none';
+      document.getElementById('coachBioEdit').style.display = 'block';
+      document.querySelector('.btn-edit-bio').style.display = 'none';
+    }
+
+    function cancelBioEdit() {
+      document.getElementById('coachBioText').style.display = 'block';
+      document.getElementById('coachBioEdit').style.display = 'none';
+      document.querySelector('.btn-edit-bio').style.display = 'inline-flex';
+      
+      // Reset textarea to original value
+      if (currentUser && currentUser.bio) {
+        document.getElementById('coachBioTextarea').value = currentUser.bio;
+      }
+    }
+
+    async function saveBio() {
+      try {
+        const newBio = document.getElementById('coachBioTextarea').value.trim();
+        const token = localStorage.getItem('token');
+        
+        if (!token || !currentUser) {
+          alert('Session expired. Please login again.');
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Show loading state
+        const saveBtn = document.querySelector('.btn-save-bio');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="ph ph-spinner"></i> Saving...';
+        saveBtn.disabled = true;
+
+        // Update coach bio via API using the new PATCH endpoint
+        const response = await fetch(`/api/coaches/${currentUser.id}/bio`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            bio: newBio
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to update bio');
+        }
+
+        // Update UI
+        currentUser.bio = newBio;
+        document.getElementById('coachBioText').textContent = newBio || 'No bio provided';
+        document.getElementById('coachBioText').style.display = 'block';
+        document.getElementById('coachBioEdit').style.display = 'none';
+        document.querySelector('.btn-edit-bio').style.display = 'inline-flex';
+
+        // Show success message
+        showSuccessMessage('Bio updated successfully!');
+
+        // Restore button
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+
+      } catch (error) {
+        console.error('Error saving bio:', error);
+        alert('Error updating bio: ' + error.message);
+        
+        // Restore button
+        const saveBtn = document.querySelector('.btn-save-bio');
+        saveBtn.innerHTML = '<i class="ph ph-check"></i> Save';
+        saveBtn.disabled = false;
+      }
+    }
+
+    function showSuccessMessage(message) {
+      // Create success notification
+      const notification = document.createElement('div');
+      notification.className = 'success-notification';
+      notification.innerHTML = `
+        <i class="ph ph-check-circle"></i>
+        <span>${message}</span>
+      `;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.classList.add('show');
+      }, 10);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          notification.remove();
+        }, 300);
+      }, 3000);
+    }
+
+    function displayProfileData(member) {
+      // Header
+      document.getElementById('profileName').textContent = member.name;
+      document.getElementById('profileEmail').textContent = member.email;
+      document.getElementById('profileStatus').textContent = member.status.charAt(0).toUpperCase() + member.status.slice(1);
+      
+      // Status badge styling
+      const statusBadge = document.getElementById('profileStatusBadge');
+      statusBadge.className = 'profile-status-badge status-' + member.status;
+
+      // Membership Information
+      document.getElementById('profileMembershipType').textContent = member.membershipType || 'Not Set';
+      document.getElementById('profileJoinDate').textContent = formatDate(member.joinDate);
+      
+      // Expiration date
+      if (member.expirationDate) {
+        document.getElementById('profileExpirationDate').textContent = formatDate(member.expirationDate);
+        
+        // Calculate days remaining
+        const daysRemaining = calculateDaysRemaining(member.expirationDate);
+        const daysElement = document.getElementById('profileDaysRemaining');
+        
+        if (daysRemaining < 0) {
+          daysElement.textContent = 'Expired';
+          daysElement.style.color = '#f44336';
+        } else if (daysRemaining === 0) {
+          daysElement.textContent = 'Expires Today!';
+          daysElement.style.color = '#ff9800';
+        } else {
+          daysElement.textContent = `${daysRemaining} days`;
+          if (daysRemaining <= 7) {
+            daysElement.style.color = '#ff9800';
+          } else if (daysRemaining <= 30) {
+            daysElement.style.color = '#2196F3';
+          } else {
+            daysElement.style.color = '#4CAF50';
+          }
+        }
+      } else {
+        document.getElementById('profileExpirationDate').textContent = 'No Expiration';
+        document.getElementById('profileDaysRemaining').textContent = 'N/A';
+      }
+
+      document.getElementById('profileMemberStatus').textContent = member.status.charAt(0).toUpperCase() + member.status.slice(1);
+      document.getElementById('profileIsTrial').textContent = member.isTrial ? 'Yes' : 'No';
+
+      // Personal Information
+      document.getElementById('profileFullName').textContent = member.name;
+      document.getElementById('profileAge').textContent = member.age || 'Not Set';
+      document.getElementById('profileEmailAddress').textContent = member.email;
+      document.getElementById('profilePhone').textContent = member.phone || 'Not Set';
+      document.getElementById('profileAddress').textContent = member.address || 'Not Set';
+      document.getElementById('profileEmergencyContact').textContent = member.emergencyContact || 'Not Set';
+
+      // Coach Information
+      if (member.coachName) {
+        document.getElementById('coachInfoCard').style.display = 'block';
+        document.getElementById('profileCoachName').textContent = member.coachName;
+      }
+    }
+
+    function checkMembershipExpiration(member) {
+      if (!member.expirationDate) return;
+
+      const daysRemaining = calculateDaysRemaining(member.expirationDate);
+      
+      // Show renewal notice if expiring within 30 days or expired
+      if (daysRemaining <= 30) {
+        document.getElementById('renewalNotice').style.display = 'flex';
+      }
+    }
+
+    function calculateDaysRemaining(expirationDate) {
+      const today = new Date();
+      const expDate = new Date(expirationDate);
+      const diffTime = expDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'Not Set';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function showError(message) {
+      const content = document.querySelector('.content');
+      content.innerHTML = `
+        <div class="error-message" style="padding: 20px; background: #ffebee; border-radius: 8px; color: #c62828;">
+          <i class="ph ph-warning" style="font-size: 24px;"></i>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+  </script>
+
+  <style>
+    .profile-header-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .profile-avatar-large {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      color: white;
+    }
+
+    .profile-header-info h2 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      color: #2c3e50;
+    }
+
+    .profile-header-info p {
+      margin: 0 0 12px 0;
+      color: #7f8c8d;
+      font-size: 16px;
+    }
+
+    .profile-status-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .profile-status-badge.status-active {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .profile-status-badge.status-inactive {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #f8f9fa;
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header h3 i {
+      font-size: 24px;
+      color: #667eea;
+    }
+
+    .card-body {
+      padding: 25px;
+    }
+
+    .profile-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+    }
+
+    .profile-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .profile-info-item.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .profile-info-item label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #7f8c8d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-info-item p {
+      margin: 0;
+      font-size: 16px;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+
+    .expiration-date {
+      font-weight: 600 !important;
+    }
+
+    .days-remaining {
+      font-weight: 700 !important;
+      font-size: 18px !important;
+    }
+
+    .renewal-notice {
+      background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+      border-left: 4px solid #ff9800;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .renewal-notice i {
+      font-size: 32px;
+      color: #f57c00;
+      flex-shrink: 0;
+    }
+
+    .renewal-notice strong {
+      display: block;
+      color: #e65100;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .renewal-notice p {
+      margin: 0;
+      color: #f57c00;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      .profile-header-card {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .profile-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Coach Profile Styles */
+    .upcoming-classes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .upcoming-class-item {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      border-radius: 8px;
+      padding: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .upcoming-class-item:hover {
+      background: #e9ecef;
+      transform: translateX(5px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .class-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .class-item-header strong {
+      font-size: 16px;
+      color: #2c3e50;
+    }
+
+    .class-capacity {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .class-item-details {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: #7f8c8d;
+    }
+
+    .class-item-details span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .class-item-details i {
+      font-size: 16px;
+      color: #667eea;
+    }
+
+    /* Bio Edit Buttons */
+    .profile-info-item label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .btn-edit-bio {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-edit-bio:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-save-bio {
+      background: linear-gradient(135deg, #4CAF50 0%, #66bb6a 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-save-bio:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-save-bio:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel-bio {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel-bio:hover {
+      background: #7f8c8d;
+      transform: translateY(-2px);
+    }
+
+    /* Success Notification */
+    .success-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #4CAF50 0%, #66bb6a 100%);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      z-index: 10001;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+    }
+
+    .success-notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .success-notification i {
+      font-size: 24px;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .ph-spinner {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</body>
+</html>
