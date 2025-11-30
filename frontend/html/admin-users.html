@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>User Management - Admin</title>
   <link rel="stylesheet" href="/css/style.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <style>
     .admin-header {
       display: flex;
@@ -118,7 +119,7 @@
         <li><a href="members.html">👥 Members</a></li>
         <li><a href="coaches.html">🏋️ Coaches</a></li>
         <li><a href="schedules.html">📅 Schedules</a></li>
-        <li><a href="payments.html">💰 Payments</a></li>
+        <li><a href="payments.html">💰 Payment History</a></li>
         <li class="active"><a href="admin-users.html">🔐 User Management</a></li>
       </ul>
     </nav>
@@ -130,8 +131,28 @@
         <button id="toggleSidebar" class="menu-btn">☰</button>
         <h1>User Management</h1>
         <div class="user-menu">
-          <span id="userName">Admin</span>
-          <button onclick="logout()" class="btn-logout">Logout</button>
+          <div class="user-profile-dropdown">
+            <button class="user-profile-btn" id="userProfileBtn" onclick="toggleUserDropdown()">
+              <div class="user-avatar" id="userAvatar">U</div>
+              <span id="userName">User</span>
+              <i class="ph ph-caret-down"></i>
+            </button>
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+              <div class="user-dropdown-header">
+                <div class="user-dropdown-avatar" id="userDropdownAvatar">U</div>
+                <div class="user-dropdown-info">
+                  <div class="user-dropdown-name" id="userDropdownName">User</div>
+                  <div class="user-dropdown-email" id="userDropdownEmail">user@example.com</div>
+                  <div class="user-dropdown-role" id="userDropdownRole"></div>
+                </div>
+              </div>
+              <div class="user-dropdown-divider"></div>
+              <button class="user-dropdown-item" onclick="logout()">
+                <i class="ph ph-sign-out"></i>
+                <span>Log out</span>
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 

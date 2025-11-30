@@ -21,6 +21,9 @@ public class Member
     [BsonElement("phone")]
     public string Phone { get; set; } = string.Empty;
 
+    [BsonElement("age")]
+    public int Age { get; set; } = 0;
+
     [BsonElement("membershipType")]
     public string MembershipType { get; set; } = string.Empty;
 
@@ -35,6 +38,24 @@ public class Member
 
     [BsonElement("emergencyContact")]
     public string? EmergencyContact { get; set; }
+
+    [BsonElement("expirationDate")]
+    [BsonIgnoreIfNull]
+    public DateTime? ExpirationDate { get; set; }
+
+    [BsonElement("isTrial")]
+    public bool IsTrial { get; set; } = false;
+
+    [BsonElement("coachId")]
+    [BsonIgnoreIfNull]
+    public string? CoachId { get; set; }
+
+    [BsonElement("coachName")]
+    [BsonIgnoreIfNull]
+    public string? CoachName { get; set; }
+
+    [BsonElement("isStudent")]
+    public bool IsStudent { get; set; } = false;
 
     [BsonElement("createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

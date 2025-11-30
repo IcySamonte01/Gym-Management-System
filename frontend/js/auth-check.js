@@ -81,10 +81,43 @@
   }
   
   function updateUserUI(user) {
-    // Update user name in header if element exists
+    // Get user initials for avatar
+    const initials = user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U';
+    
+    // Update user name in button
     const userNameElement = document.getElementById('userName');
     if (userNameElement) {
-      userNameElement.textContent = user.name;
+      userNameElement.textContent = user.name || 'User';
+    }
+    
+    // Update avatar initials
+    const userAvatar = document.getElementById('userAvatar');
+    if (userAvatar) {
+      userAvatar.textContent = initials;
+    }
+    
+    // Update dropdown header
+    const userDropdownName = document.getElementById('userDropdownName');
+    if (userDropdownName) {
+      userDropdownName.textContent = user.name || 'User';
+    }
+    
+    const userDropdownEmail = document.getElementById('userDropdownEmail');
+    if (userDropdownEmail) {
+      userDropdownEmail.textContent = user.email || '';
+    }
+    
+    // Update role badge
+    const userDropdownRole = document.getElementById('userDropdownRole');
+    if (userDropdownRole && user.role) {
+      const roleText = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+      userDropdownRole.textContent = roleText;
+      userDropdownRole.className = 'user-dropdown-role role-' + user.role;
+    }
+    
+    const userDropdownAvatar = document.getElementById('userDropdownAvatar');
+    if (userDropdownAvatar) {
+      userDropdownAvatar.textContent = initials;
     }
     
     // Update profile picture if element exists
@@ -100,13 +133,42 @@
 
     // Control sidebar navigation based on role
     if (user.role !== 'admin') {
-        // Hide admin-only menu items
+        // Hide admin-only menu items (Dashboard, Members, Payment History, Admin Users)
         document.querySelectorAll('.nav-item-admin').forEach(el => {
             el.style.display = 'none';
         });
+        
+        // Redirect non-admin users if they try to access admin-only pages
+        const adminOnlyPages = ['dashboard.html', 'members.html', 'payments.html', 'admin-users.html'];
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        
+        if (adminOnlyPages.includes(currentPage)) {
+            // Redirect to coaches page (default page for members and coaches)
+            window.location.href = '/coaches.html';
+        }
     }
   }
 })();
+
+// Toggle user dropdown menu
+function toggleUserDropdown() {
+  const dropdown = document.getElementById('userDropdownMenu');
+  if (dropdown) {
+    dropdown.classList.toggle('show');
+  }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const dropdown = document.getElementById('userDropdownMenu');
+  const profileBtn = document.getElementById('userProfileBtn');
+  
+  if (dropdown && profileBtn) {
+    if (!profileBtn.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.classList.remove('show');
+    }
+  }
+});
 
 // Logout function
 function logout() {
