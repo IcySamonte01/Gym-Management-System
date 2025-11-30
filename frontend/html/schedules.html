@@ -46,6 +46,10 @@
               </div>
             </div>
             <div class="user-dropdown-divider"></div>
+            <a href="profile.html" class="user-dropdown-item">
+              <i class="ph ph-user-circle"></i>
+              <span>My Profile</span>
+            </a>
             <button class="user-dropdown-item" onclick="logout()">
               <i class="ph ph-sign-out"></i>
               <span>Log out</span>
@@ -291,6 +295,72 @@
           <div class="availability-grid" id="coachAvailability">
             <!-- Availability will be populated here -->
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Detail Modal -->
+  <div id="scheduleDetailModal" class="schedule-detail-modal">
+    <div class="schedule-detail-content">
+      <div class="schedule-detail-header">
+        <h2 id="scheduleDetailTitle">Class Details</h2>
+        <button class="close-schedule-detail" onclick="closeScheduleDetailModal()">&times;</button>
+      </div>
+      <div class="schedule-detail-body">
+        <div class="detail-section">
+          <div class="detail-status-badge" id="detailStatusBadge">
+            <span id="detailStatus">Status</span>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <h3><i class="ph ph-calendar"></i> Schedule Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Date</label>
+              <p id="detailDate">-</p>
+            </div>
+            <div class="detail-item">
+              <label>Time</label>
+              <p id="detailTime">-</p>
+            </div>
+            <div class="detail-item">
+              <label>Duration</label>
+              <p id="detailDuration">-</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="ph ph-user"></i> Coach</h3>
+          <div class="detail-coach-card" id="detailCoachCard">
+            <img id="detailCoachPhoto" src="" alt="Coach Photo" class="detail-coach-photo">
+            <div class="detail-coach-info">
+              <h4 id="detailCoachName">Coach Name</h4>
+              <p id="detailCoachSpecialty">Specialty</p>
+            </div>
+            <button class="btn-view-coach" id="detailViewCoachBtn">View Profile</button>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3><i class="ph ph-users"></i> Capacity</h3>
+          <div class="detail-capacity">
+            <div class="capacity-bar">
+              <div class="capacity-fill" id="detailCapacityFill"></div>
+            </div>
+            <p id="detailCapacityText">0 / 0 enrolled</p>
+          </div>
+        </div>
+
+        <div class="detail-section" id="detailDescriptionSection">
+          <h3><i class="ph ph-note"></i> Description</h3>
+          <p id="detailDescription">No description provided.</p>
+        </div>
+
+        <div class="detail-actions" id="detailActions">
+          <!-- Action buttons will be populated here -->
         </div>
       </div>
     </div>

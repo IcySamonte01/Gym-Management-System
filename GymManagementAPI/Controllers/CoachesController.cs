@@ -119,6 +119,58 @@ public class CoachesController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/bio")]
+    [Authorize(Roles = "coach,admin")] // Coach can update their own bio, admin can update any
+    public async Task<IActionResult> UpdateBio(string id, [FromBody] UpdateBioRequest request)
+    {
+        try
+        {
+            // Get current user email from token claims
+            var userEmail = User.Claims.FirstOrDefault(c => c.Type == "email" || c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+            
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized(new { error = "User not authenticated" });
+            }
+
+            // Get the coach being updated
+            var coach = await _coachService.GetByIdAsync(id);
+            if (coach == null)
+            {
+                return NotFound(new { error = "Coach not found" });
+            }
+
+            // Check if user is admin or the coach themselves
+            var userRole = User.Claims.FirstOrDefault(c => c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+            
+            if (userRole != "admin" && coach.Email != userEmail)
+            {
+                return Forbid(); // Coach can only update their own bio
+            }
+
+            // Update only the bio
+            coach.Bio = request.Bio;
+            coach.UpdatedAt = DateTime.UtcNow;
+            
+            var updatedCoach = await _coachService.UpdateAsync(id, coach);
+            if (updatedCoach == null)
+            {
+                return NotFound(new { error = "Coach not found" });
+            }
+            
+            return Ok(updatedCoach);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    public class UpdateBioRequest
+    {
+        public string Bio { get; set; } = string.Empty;
+    }
+
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")] // Only admin can delete coaches
     public async Task<IActionResult> Delete(string id)
