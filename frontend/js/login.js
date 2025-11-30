@@ -2,7 +2,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   const loginForm = document.getElementById('loginForm');
   const messageDiv = document.getElementById('message');
-  const googleSignInBtn = document.getElementById('googleSignInBtn');
+  const emailInput = document.getElementById('email');
+  const rememberMeCheckbox = document.getElementById('rememberMe');
+
+  // Load saved email if "Remember me" was previously checked
+  const savedEmail = localStorage.getItem('savedEmail');
+  if (savedEmail) {
+    emailInput.value = savedEmail;
+    rememberMeCheckbox.checked = true;
+  }
 
   // Handle traditional login
   loginForm.addEventListener('submit', async (e) => {
@@ -27,8 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store token
         if (rememberMe) {
           localStorage.setItem('token', data.token);
+          // Save email for next login
+          localStorage.setItem('savedEmail', email);
         } else {
           sessionStorage.setItem('token', data.token);
+          // Clear saved email if "Remember me" is not checked
+          localStorage.removeItem('savedEmail');
         }
         
         // Store user info
@@ -48,14 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
       showMessage('An error occurred. Please try again.', 'error');
     }
   });
-
-  // Handle Google Sign In (custom button)
-  if (googleSignInBtn) {
-    googleSignInBtn.addEventListener('click', () => {
-      // Redirect to Google OAuth
-      window.location.href = '/api/auth/google';
-    });
-  }
 
   // Helper function to show messages
   function showMessage(message, type) {
@@ -105,70 +109,4 @@ document.addEventListener('DOMContentLoaded', function() {
       console.error('Token verification failed:', err);
     });
   }
-
-  // Check for Google OAuth callback with token in URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlToken = urlParams.get('token');
-  const userName = urlParams.get('name');
-  const userRole = urlParams.get('role');
-
-  if (urlToken) {
-    // Store token and user info
-    localStorage.setItem('token', urlToken);
-    localStorage.setItem('user', JSON.stringify({
-      name: decodeURIComponent(userName),
-      role: userRole
-    }));
-
-    // Show success message
-    showMessage('Google login successful! Redirecting...', 'success');
-
-    // Clean URL and redirect
-    setTimeout(() => {
-      window.location.href = getDashboardUrl(userRole);
-    }, 1000);
-  }
-
-  // Check for error in URL
-  const error = urlParams.get('error');
-  if (error) {
-    showMessage('Google authentication failed. Please try again.', 'error');
-  }
 });
-
-// Handle Google Sign In callback
-function handleCredentialResponse(response) {
-  // Send the credential to your server
-  fetch('/api/auth/google/callback', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ credential: response.credential })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      const messageDiv = document.getElementById('message');
-      messageDiv.textContent = 'Google login successful! Redirecting...';
-      messageDiv.className = 'message success';
-      messageDiv.classList.remove('hidden');
-      
-      setTimeout(() => {
-        window.location.href = getDashboardUrl(data.user.role);
-      }, 1000);
-    } else {
-      throw new Error(data.error || 'Google login failed');
-    }
-  })
-  .catch(error => {
-    console.error('Google Sign In error:', error);
-    const messageDiv = document.getElementById('message');
-    messageDiv.textContent = 'Google login failed. Please try again.';
-    messageDiv.className = 'message error';
-    messageDiv.classList.remove('hidden');
-  });
-}

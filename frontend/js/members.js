@@ -618,6 +618,7 @@ function openMemberModal(memberId = null) {
             
             document.getElementById('memberId').value = member.id;
             document.getElementById('memberName').value = member.name;
+            document.getElementById('memberAge').value = member.age || '';
             document.getElementById('memberEmail').value = member.email;
             document.getElementById('memberPassword').value = ''; // Don't show existing password
             document.getElementById('memberPassword').placeholder = 'Leave blank to keep current password';
